@@ -72,29 +72,8 @@
             </div>
         </nav>
 
-        <main class="">
-            <div class="container px-5 py-24 mx-auto"> 
-                <div class=" flex flex-wrap sm:flex-row flex-col py-6 mb-12">
-                    <div class="card">
-                        <div class="card-header">L</div>
-                       <div class="card-body">
-                          
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-wrap sm:flex-row flex-col py-6 mb-12">
-                    <div class="card">
-                        <div class="card-header">メモ</div>
-                        <div class="card-body4">
-                        @foreach ($memos as $memo)
-                            <a href="/edit/{{ $memo['id'] }}" class="card-text d-block">{{ $memo['content'] }}</a>
-                        @endforeach
-                        </div>
-                    </div>
-                </div>
-                    @yield('content')</div> 
-            </div>
-           
+        <main class="py-4">
+                @yield('content')
         </main>
     </div>
 </body>
