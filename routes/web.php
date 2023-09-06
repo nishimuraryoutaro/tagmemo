@@ -24,3 +24,6 @@ Route::post('/store', [HomeController::class, 'store'])->name('store');
 Route::get('/edit/{id}', [HomeController::class, 'edit'])->name('edit');
 Route::post('/updete', [HomeController::class, 'update'])->name('update');
 Route::post('/destory', [HomeController::class, 'destory'])->name('destory');
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

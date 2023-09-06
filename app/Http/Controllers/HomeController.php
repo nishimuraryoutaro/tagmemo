@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Memo;
-
+use App\Models\Tag;
+use App\Models\MemoTag;
+use DB;
 class HomeController extends Controller
 {
     /**
@@ -30,13 +32,40 @@ class HomeController extends Controller
         ->orderBy('updated_at', 'DESC')
         ->get();
 
-        return view('create', compact('memos'));
+        $tags = Tag::where('user_id', '=', \Auth::id())
+        ->whereNull('deleted_at')
+        ->orderBy('id', 'DESC') 
+        ->get();
+
+        return view('create', compact('memos', 'tags'));
     }
     public function store(Request $request)
     {
-        $post = $request->all();
+        $posts = $request->all();
 
-        Memo::insert(['content' => $post['content'], 'user_id' => \Auth::id()]);
+        //トランザクション
+        DB::transaction(function() use($posts) {
+            $memo_id =  Memo::insert(['content' => $posts['content'], 'user_id' => \Auth::id()]);
+            //tagが存在するか
+            $tag_exists = Tag::where('user_id', '=', \Auth::id())//ログインしてるuser_idがあるか
+            ->where('name', '=',$posts['new_tag'])//nameが存在するか
+            ->exists();//上記が存在するか
+            //新規タグが入力されているか
+            if(!empty($posts['new_tag']) && !$tag_exists) {
+                //ログインしているidと送ったnew_tagをtag_idに
+                $tag_id = Tag::insertGetId(['user_id' => \Auth::id(), 'name' => $posts['new_tag']]);
+                //memo_tagにメモとタグを結びつける
+                MemoTag::insert(['memo_id' => $memo_id, 'tag_id' => $tag_id]);
+            }
+
+            foreach($posts['tags'] as $tag){
+                MemoTag::insert(['memo_id' => $memo_id, 'tag_id' =>$tag]);
+            }
+        });
+
+
+
+       
         return view('create');
     }
 
